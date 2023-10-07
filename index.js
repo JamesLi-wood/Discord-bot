@@ -1,5 +1,10 @@
 // Require the necessary discord.js classes
-const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
+const {
+  Client,
+  Events,
+  GatewayIntentBits,
+  EmbedBuilder,
+} = require("discord.js");
 require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
@@ -27,8 +32,50 @@ client.on("messageCreate", (message) => {
     return;
   }
 
-  if (message.content == "hello") {
+  if (message.content === "hello") {
     message.reply("hello");
+  }
+
+  if (message.content === "embed") {
+    const embed = new EmbedBuilder()
+      .setTitle("Embed Title")
+      .setDescription("This is an embed description")
+      .setColor("Green")
+      .addFields(
+        {
+          name: "Field Title",
+          value: "Some random value",
+          inline: true,
+        },
+        {
+          name: "2nd Field Title",
+          value: "Some random value",
+          inline: true,
+        }
+      );
+
+    message.channel.send({ embeds: [embed] });
+  }
+
+  if (message.content === "shoes") {
+    fetch(process.env.NIKE_API)
+      .then((res) => res.json())
+      .then((data) => {
+        const shoes = data.data.products.products;
+
+        for (let i = 0; i < 3; i++) {
+          const embed = new EmbedBuilder()
+            .setImage(shoes[i].images.portraitURL)
+            .setTitle(shoes[i].title)
+            .addFields({
+              name: "Price",
+              value: `${shoes[i].price.currentPrice}`,
+            })
+            .setColor("Green");
+
+          message.channel.send({ embeds: [embed] });
+        }
+      });
   }
 
   console.log(message.content);
@@ -38,12 +85,25 @@ client.on("interactionCreate", (interaction) => {
   // Will only run if it is a slash command.
   if (!interaction.isChatInputCommand()) return;
 
-  if (interaction.commandName === "hey") {
-    interaction.reply("hey!");
+  if (interaction.commandName === "add") {
+    const num1 = interaction.options.get("first-number")?.value;
+    const num2 = interaction.options.get("second-number")?.value;
+
+    interaction.reply(`Sum is ${num1 + num2}`);
   }
 
-  if (interaction.commandName === "ping") {
-    interaction.reply("pong");
+  if (interaction.commandName === "embed") {
+    const embed = new EmbedBuilder()
+      .setTitle("Embed Title")
+      .setDescription("This is an embed description")
+      .setColor("Green")
+      .addFields({
+        name: "Field title",
+        value: "Some random value",
+        inline: true,
+      });
+
+    interaction.reply({ embeds: [embed] });
   }
 
   console.log(interaction.commandName);
