@@ -4,6 +4,7 @@ const {
   Events,
   GatewayIntentBits,
   EmbedBuilder,
+  ActivityType,
 } = require("discord.js");
 require("dotenv").config();
 
@@ -19,8 +20,13 @@ const client = new Client({
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
-client.once(Events.ClientReady, (c) => {
+client.on("ready", (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
+
+  client.user.setActivity({
+    name: "Working",
+    type: ActivityType.Custom,
+  });
 });
 
 client.on("messageCreate", (message) => {
